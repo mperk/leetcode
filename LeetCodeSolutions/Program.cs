@@ -17,8 +17,73 @@
 
 using System.Numerics;
 
-AddTwoNumbers(new ListNode(2, new ListNode(4, new ListNode(3))), new ListNode(5, new ListNode(6, new ListNode(4))));
+//AddTwoNumbers(new ListNode(2, new ListNode(4, new ListNode(3))), new ListNode(5, new ListNode(6, new ListNode(4))));
+
+//Console.WriteLine(LengthOfLongestSubstring("dvdf"));
+
+//Console.WriteLine(FindMedianSortedArrays(new int[] {  }, new int[] {  }));
+
+Console.WriteLine(LongestPalindrome("babad"));
+
 Console.ReadLine();
+
+string LongestPalindrome(string s)
+{
+    //var allSubstrings = new List<string>();
+    string longest = string.Empty;
+    for (int i = 0; i < s.Length; i++)
+    {
+        for (int j = i; j < s.Length; j++)
+        {
+            string sub = s.Substring(i, j - i + 1);
+            if(sub == new string(sub.Reverse().ToArray()))
+            {
+                if (longest.Length < sub.Length)
+                    longest = sub;
+            }
+        }
+    }
+    return longest;
+}
+
+double FindMedianSortedArrays(int[] nums1, int[] nums2)
+{
+    var nums3 = nums1.Concat(nums2).ToArray();
+    Array.Sort(nums3);
+    if (nums3.Length == 0) return 0.0;
+    double median = nums3[0];
+    int l = nums3.Length;
+    if (l % 2 == 0)
+    {
+        median = (nums3[l / 2] + nums3[l / 2 - 1]) / 2.0;
+    }
+    else
+    {
+        median = nums3[l / 2];
+    }
+    return median;
+}
+
+int LengthOfLongestSubstring(string s)
+{
+    var dic = new Dictionary<string, int>();
+    int maxCount = 0;
+    for (int i = 0; i < s.Length; i++)
+    {
+        if (!dic.ContainsKey(s[i].ToString()))
+        {
+            dic.Add(s[i].ToString(), i);
+        }
+        else
+        {
+            maxCount = Math.Max(dic.Count, maxCount);
+            i = dic[s[i].ToString()];
+            dic.Clear();
+        }
+    }
+    maxCount = Math.Max(dic.Count, maxCount);
+    return maxCount;
+}
 
 ListNode AddTwoNumbers(ListNode l1, ListNode l2)
 {
