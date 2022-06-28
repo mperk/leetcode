@@ -11,9 +11,70 @@
 //    new char[] { 'E', 'E', 'E', 'E', 'E' },
 //    new char[] { 'E', 'E', 'E', 'E', 'E' } }, new int[] { 3, 0 }));
 
-Console.WriteLine(ReformatNumber("1222"));
+//Console.WriteLine(ReformatNumber("1222"));
+//Console.WriteLine(LargestNumber(new int[] {3, 30, 34, 5, 9}));
+//Console.WriteLine(TwoSum(new int[] { 2, 7, 11, 15 }, 9));
+
+using System.Numerics;
+
+AddTwoNumbers(new ListNode(2, new ListNode(4, new ListNode(3))), new ListNode(5, new ListNode(6, new ListNode(4))));
 Console.ReadLine();
 
+ListNode AddTwoNumbers(ListNode l1, ListNode l2)
+{
+    BigInteger a = new BigInteger();
+    BigInteger.TryParse(new string(FlatListNode(l1).Reverse().ToArray()), out BigInteger first);
+    BigInteger.TryParse(new string(FlatListNode(l2).Reverse().ToArray()), out BigInteger second);
+    var s = new string((first + second).ToString().Reverse().ToArray());
+
+    var result = GenerateListNode(s);
+
+    return result;
+}
+
+ListNode GenerateListNode(string s)
+{
+    if(string.IsNullOrEmpty(s)) return null;
+    var result = new ListNode(Convert.ToInt32(s[0].ToString()));
+    result.next = GenerateListNode(s.Substring(1, s.Length - 1));
+    return result;
+}
+
+string FlatListNode(ListNode node)
+{
+    var result = node.val.ToString();
+    if(node.next != null)
+    {
+        result += FlatListNode(node.next);
+    }
+    return result;
+}
+
+int[] TwoSum(int[] nums, int target)
+{
+    var hashNums = new Dictionary<int, List<int>>();
+    var result = new List<int>();
+    for (int i = 0; i < nums.Length; i++)
+    {
+        if(hashNums.ContainsKey(nums[i])) hashNums[nums[i]].Add(i);
+        else hashNums[nums[i]] = new List<int> { i };
+        int diff = target - nums[i];
+        if (hashNums.ContainsKey(diff) && hashNums[diff].Count(x => x != i) > 0 )
+        {
+            result.Add(i);
+            result.Add(hashNums[diff].FirstOrDefault(x => x != i));
+        }
+    }
+    return result.ToArray();
+}
+
+string LargestNumber(int[] nums)
+{
+    var l = nums.Select(x => x.ToString()).OrderByDescending(x => x).ToList();
+    l.Sort((a, b) => (b + a).CompareTo(a + b));
+    if (l[0] == "0") return "0";
+    return string.Join("", l);
+}
 
 string ReformatNumber(string number)
 {
@@ -131,7 +192,6 @@ long JohnTravelsToAnotherCity(int[] A, int[] B, int[] C)
     return count;
 }
 
-
 //https://maksimdan.gitbook.io/interview-practice-problems/leetcode_sessions/trees-and-graphs/number-of-cities-at-each-distance
 //https://medium.com/@itoohue/breadth-first-search-by-example-5423be5778ec
 List<int> NumberOfCities(List<int> T)
@@ -191,3 +251,16 @@ List<int> NumberOfCities(List<int> T)
 
     return T;
 }
+
+
+public class ListNode
+{
+    public int val;
+    public ListNode next;
+    public ListNode(int val = 0, ListNode next = null)
+    {
+        this.val = val;
+        this.next = next;
+    }
+}
+
