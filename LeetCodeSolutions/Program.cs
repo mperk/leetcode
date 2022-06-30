@@ -16,6 +16,7 @@
 //Console.WriteLine(TwoSum(new int[] { 2, 7, 11, 15 }, 9));
 
 using System.Numerics;
+using System.Text;
 
 //AddTwoNumbers(new ListNode(2, new ListNode(4, new ListNode(3))), new ListNode(5, new ListNode(6, new ListNode(4))));
 
@@ -23,9 +24,100 @@ using System.Numerics;
 
 //Console.WriteLine(FindMedianSortedArrays(new int[] {  }, new int[] {  }));
 
-Console.WriteLine(LongestPalindrome("cbbd"));
+//Console.WriteLine(LongestPalindrome("cbbd"));
+//Console.WriteLine(Reverse(-123));
+//Console.WriteLine(MyAtoi("    +11191657170"));
+Console.WriteLine(IsPalindrome(12231));
 
 Console.ReadLine();
+
+bool IsPalindrome(int x)
+{
+    //this solution: faster than 98.11% of C# online submissions
+    string xS = x.ToString();
+    string reverse = new string(xS.Reverse().ToArray());
+    if (xS == reverse) return true;
+    else return false;
+
+    //this solution: faster than 29.61% of C# online submissions
+    //string xS = x.ToString();
+    //int i = 0;
+    //int j = xS.Length - 1;
+
+    //int endI = xS.Length / 2;
+    //int endJ = xS.Length / 2;
+    //if (xS.Length % 2 != 0) endJ++;
+
+    //while (i < endI && j >= endJ)
+    //{
+    //    if (xS[i] == xS[j])
+    //    {
+    //        i++;
+    //        j--;
+    //    }
+    //    else
+    //    {
+    //        return false;
+    //    }
+    //}
+    //return true;
+}
+
+int MyAtoi(string s)
+{
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < s.Length; i++)
+    {
+        if (string.IsNullOrEmpty(sb.ToString()))
+        {
+            if(s[i] == '-')
+                sb.Append('-');
+            else if(s[i] == '+')
+                sb.Append('+');
+            else if(s[i] != ' ' && s[i] != '+' && (s[i] < '0' || s[i] > '9'))
+                return 0;
+            if (s[i] >= '0' && s[i] <= '9')
+                sb.Append(s[i]);
+        }
+        else
+        {
+            if (s[i] >= '0' && s[i] <= '9')
+                sb.Append(s[i]);
+            else
+            {
+                break;
+            }
+        }
+        
+    }
+    Int32.TryParse(sb.ToString(), out int result);
+    if(result == 0 && sb.Length > 1)
+    {
+        BigInteger.TryParse(sb.ToString(), out BigInteger bigInteger);
+        if(bigInteger != 0)
+        {
+            if (sb.ToString()[0] == '-') return Int32.MinValue;
+            else if (sb.ToString()[0] == '+') return Int32.MaxValue;
+            else if (sb.ToString()[0] > '0' && sb.ToString()[0] <= '9') return Int32.MaxValue;
+        }
+    }
+    return result;
+}
+
+int Reverse(int x)
+{
+    if (x >= 0)
+    {
+        Int32.TryParse(new string(x.ToString().Reverse().ToArray()), out int result);
+        return result;
+    }
+    else
+    {
+        string tempS = x.ToString();
+        Int32.TryParse("-" + new string(tempS.Substring(1, tempS.Length - 1).Reverse().ToArray()), out int result);
+        return result;
+    }
+}
 
 string LongestPalindrome(string s)
 {
@@ -38,14 +130,14 @@ string LongestPalindrome(string s)
         int left = i;
         int right = i;
         extendPalindrome(s, ref left, ref right);
-        if(longLength < right - left - 1)
+        if (longLength < right - left - 1)
         {
             longLength = right - left - 1;
-            longest = s.Substring(left+1, right - left - 1);
+            longest = s.Substring(left + 1, right - left - 1);
         }
 
         left = i;
-        right = i+1;
+        right = i + 1;
         extendPalindrome(s, ref left, ref right);
         if (longLength < right - left - 1)
         {
@@ -126,7 +218,7 @@ ListNode AddTwoNumbers(ListNode l1, ListNode l2)
 
 ListNode GenerateListNode(string s)
 {
-    if(string.IsNullOrEmpty(s)) return null;
+    if (string.IsNullOrEmpty(s)) return null;
     var result = new ListNode(Convert.ToInt32(s[0].ToString()));
     result.next = GenerateListNode(s.Substring(1, s.Length - 1));
     return result;
@@ -135,7 +227,7 @@ ListNode GenerateListNode(string s)
 string FlatListNode(ListNode node)
 {
     var result = node.val.ToString();
-    if(node.next != null)
+    if (node.next != null)
     {
         result += FlatListNode(node.next);
     }
@@ -148,10 +240,10 @@ int[] TwoSum(int[] nums, int target)
     var result = new List<int>();
     for (int i = 0; i < nums.Length; i++)
     {
-        if(hashNums.ContainsKey(nums[i])) hashNums[nums[i]].Add(i);
+        if (hashNums.ContainsKey(nums[i])) hashNums[nums[i]].Add(i);
         else hashNums[nums[i]] = new List<int> { i };
         int diff = target - nums[i];
-        if (hashNums.ContainsKey(diff) && hashNums[diff].Count(x => x != i) > 0 )
+        if (hashNums.ContainsKey(diff) && hashNums[diff].Count(x => x != i) > 0)
         {
             result.Add(i);
             result.Add(hashNums[diff].FirstOrDefault(x => x != i));
@@ -171,16 +263,17 @@ string LargestNumber(int[] nums)
 string ReformatNumber(string number)
 {
     string result = string.Empty;
-    number = number.Replace(" ", "").Replace("-","");
+    number = number.Replace(" ", "").Replace("-", "");
 
     int size = 0;
     for (int i = 0; i < number.Length; i++)
     {
-        if(size == 2 && number.Length - i == 2)
+        if (size == 2 && number.Length - i == 2)
         {
             result += "-";
             size = 0;
-        } else if(size == 3)
+        }
+        else if (size == 3)
         {
             result += "-";
             size = 0;
@@ -213,7 +306,7 @@ char[][] UpdateBoard(char[][] board, int[] click)
         int col = e.Item2;
         int count = 0;
 
-        List<(int,int)> list = new List<(int, int)>();
+        List<(int, int)> list = new List<(int, int)>();
 
         for (int i = -1; i <= 1; i++)
         {
@@ -224,7 +317,8 @@ char[][] UpdateBoard(char[][] board, int[] click)
                 if (x >= 0 && x < endi && y >= 0 && y < endj)
                 {
                     if (board[x][y] == 'M') count++;
-                    else if (count == 0 && board[x][y] == 'E') {
+                    else if (count == 0 && board[x][y] == 'E')
+                    {
                         //board[x][y] = 'B';
                         //q.Enqueue((x, y));
                         list.Add((x, y));
@@ -269,7 +363,7 @@ long JohnTravelsToAnotherCity(int[] A, int[] B, int[] C)
     {
         long aCount = 0L;
         long cCount = 0L;
-        while(aCount < A.Length && A[aCount] < B[i])
+        while (aCount < A.Length && A[aCount] < B[i])
         {
             aCount++;
         }
@@ -277,7 +371,7 @@ long JohnTravelsToAnotherCity(int[] A, int[] B, int[] C)
         {
             cCount++;
         }
-        
+
         count += aCount * cCount;
     }
 
