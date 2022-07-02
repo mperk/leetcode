@@ -27,9 +27,176 @@ using System.Text;
 //Console.WriteLine(LongestPalindrome("cbbd"));
 //Console.WriteLine(Reverse(-123));
 //Console.WriteLine(MyAtoi("    +11191657170"));
-Console.WriteLine(IsPalindrome(12231));
+//Console.WriteLine(IsPalindrome(12231));
+//Console.WriteLine(GenerateParenthesis(13));
+//Console.WriteLine(IsMatch("aa", "a"));
+//Console.WriteLine(MaxArea(new int[] { 1, 8, 6, 2, 5, 4, 8, 3, 7 }));
+Console.WriteLine(IntToRoman(1994));
 
 Console.ReadLine();
+
+string IntToRoman(int num)
+{
+    string result = string.Empty;
+    while (num > 0)
+    {
+        if (num >= 900)
+        {
+            if (num >= 900 && num < 1000)
+            {
+                result += "CM";
+                num -= 900;
+            }
+            else
+            {
+                result += "M";
+                num -= 1000;
+            }
+        }
+        else if (num >= 400)
+        {
+            if (num >= 400 && num < 500)
+            {
+                result += "CD";
+                num -= 400;
+            }
+            else
+            {
+                result += "D";
+                num -= 500;
+            }
+        }
+        else if (num >= 90)
+        {
+            if (num >= 90 && num < 100)
+            {
+                result += "XC";
+                num -= 90;
+            }
+            else
+            {
+                result += "C";
+                num -= 100;
+            }
+        }
+        else if (num >= 40)
+        {
+            if (num >= 40 && num < 50)
+            {
+                result += "XL";
+                num -= 40;
+            }
+            else
+            {
+                result += "L";
+                num -= 50;
+            }
+        }
+        else if (num >= 10)
+        {
+            result += "X";
+            num -= 10;
+        }
+        else if (num >= 5)
+        {
+            if (num >= 9)
+            {
+                result += "IX";
+                num -= 9;
+            }
+            else
+            {
+                result += "V";
+                num -= 5;
+            }
+        }
+        else if (num >= 1)
+        {
+            if(num == 4)
+            {
+                result += "IV";
+                num -= 4;
+            }
+            else
+            {
+                result += "I";
+                num -= 1;
+            }
+        }
+    }
+    return result;
+}
+
+int MaxArea(int[] height)
+{
+    int maxArea = 0;
+    int i = 0;
+    int j = height.Length - 1;
+    while (i < j)
+    {
+        maxArea = Math.Max(maxArea, (j - i) * Math.Min(height[i], height[j]));
+        if (height[i] < height[j])
+            i++;
+        else
+            j--;
+    }
+    return maxArea;
+}
+
+bool IsMatch(string s, string p)
+{
+    var T = new bool[s.Length + 1, p.Length + 1];
+    T[0, 0] = true;
+
+    //deals with patterns like a* or a*b* or a*b*c*
+    for (int i = 1; i < T.GetLength(1); i++)
+    {
+        if (p[i - 1] == '*')
+            T[0, i] = T[0, i - 2];
+    }
+
+    for (int i = 1; i < T.GetLength(0); i++)
+    {
+        for (int j = 1; j < T.GetLength(1); j++)
+        {
+            if (p[j - 1] == '.' || p[j - 1] == s[i - 1])
+                T[i, j] = T[i - 1, j - 1];
+            else if (p[j - 1] == '*')
+            {
+                T[i, j] = T[i, j - 2];
+                if (p[j - 2] == '.' || p[j - 2] == s[i - 1])
+                    T[i, j] = T[i, j] | T[i - 1, j];
+            }
+            else
+                T[i, j] = false;
+        }
+    }
+    return T[s.Length, p.Length];
+}
+
+IList<string> GenerateParenthesis(int n)
+{
+    var result = new List<string>();
+    GenerateParenthesisRecursive(string.Empty, 0, 0, result, n);
+    return result;
+}
+
+void GenerateParenthesisRecursive(string s, int openParenthesis, int closeParenthesis, List<string> result, int n)
+{
+    if (openParenthesis == closeParenthesis && openParenthesis == n)
+    {
+        result.Add(s);
+        return;
+    }
+
+    if (openParenthesis < n)
+        GenerateParenthesisRecursive(s + "(", openParenthesis + 1, closeParenthesis, result, n);
+
+    if (closeParenthesis < openParenthesis)
+        GenerateParenthesisRecursive(s + ")", openParenthesis, closeParenthesis + 1, result, n);
+
+    return;
+}
 
 bool IsPalindrome(int x)
 {
@@ -70,11 +237,11 @@ int MyAtoi(string s)
     {
         if (string.IsNullOrEmpty(sb.ToString()))
         {
-            if(s[i] == '-')
+            if (s[i] == '-')
                 sb.Append('-');
-            else if(s[i] == '+')
+            else if (s[i] == '+')
                 sb.Append('+');
-            else if(s[i] != ' ' && s[i] != '+' && (s[i] < '0' || s[i] > '9'))
+            else if (s[i] != ' ' && s[i] != '+' && (s[i] < '0' || s[i] > '9'))
                 return 0;
             if (s[i] >= '0' && s[i] <= '9')
                 sb.Append(s[i]);
@@ -88,13 +255,13 @@ int MyAtoi(string s)
                 break;
             }
         }
-        
+
     }
     Int32.TryParse(sb.ToString(), out int result);
-    if(result == 0 && sb.Length > 1)
+    if (result == 0 && sb.Length > 1)
     {
         BigInteger.TryParse(sb.ToString(), out BigInteger bigInteger);
-        if(bigInteger != 0)
+        if (bigInteger != 0)
         {
             if (sb.ToString()[0] == '-') return Int32.MinValue;
             else if (sb.ToString()[0] == '+') return Int32.MaxValue;
