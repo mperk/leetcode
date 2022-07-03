@@ -31,9 +31,173 @@ using System.Text;
 //Console.WriteLine(GenerateParenthesis(13));
 //Console.WriteLine(IsMatch("aa", "a"));
 //Console.WriteLine(MaxArea(new int[] { 1, 8, 6, 2, 5, 4, 8, 3, 7 }));
-Console.WriteLine(IntToRoman(1994));
+//Console.WriteLine(IntToRoman(1994));
+//Console.WriteLine(RomanToInt("MCMXCIV"));
+//Console.WriteLine(LongestCommonPrefix(new string[] { "flower", "flow", "flight" }));
+//Console.WriteLine(CountPaths(new int[][] { new int[] { 1, 1 }, new int[] { 3, 4 } }));
+
+//Console.WriteLine(SpiralMatrix(4, 5, GenerateListNodeFromArray(new int[] { 515, 942, 528, 483, 20, 159, 868, 999, 474, 320, 734, 956, 12, 124, 224, 252, 909, 732 })));
+Console.WriteLine(SpiralMatrix(3, 5, GenerateListNodeFromArray(new int[] { 3, 0, 2, 6, 8, 1, 7, 9, 4, 2, 5, 5, 0 })));
 
 Console.ReadLine();
+
+int[][] SpiralMatrix(int m, int n, ListNode head)
+{
+    int[][] matrix = new int[m][];
+
+    for (int k = 0; k < m; k++)
+    {
+        for (int l = 0; l < n; l++)
+        {
+            if (matrix[k] == null) matrix[k] = new int[n];
+            matrix[k][l] = -1;
+        }
+    }
+    int rowStart = 0, rowEnd = m - 1;
+    int colStart = 0, colEnd = n - 1;
+
+    while(rowStart <= rowEnd && colStart <= colEnd)
+    {
+        for (int i = colStart; i <= colEnd; i++)
+        {
+            if (head == null) return matrix;
+            matrix[rowStart][i] = head.val;
+            head = head.next;
+        }
+        rowStart++;
+
+        for (int i = rowStart; i <= rowEnd; i++)
+        {
+            if (head == null) return matrix;
+            matrix[i][colEnd] = head.val;
+            head = head.next;
+        }
+        colEnd--;
+
+        for (int i = colEnd; i >= colStart; i--)
+        {
+            if(rowStart <= rowEnd)
+            {
+                if (head == null) return matrix;
+                matrix[rowEnd][i] = head.val;
+                head = head.next;
+            }
+        }
+        rowEnd--;
+
+        for (int i = rowEnd; i >= rowStart; i--)
+        {
+            if(colStart <= colEnd)
+            {
+                if (head == null) return matrix;
+                matrix[i][colStart] = head.val;
+                head = head.next;
+            }
+        }
+        colStart++;
+    }
+   
+    return matrix;
+}
+
+int CountPaths(int[][] grid)
+{
+    long count = 0;
+    var visited = new int[grid.Length, grid[0].Length];
+
+    for (int i = 0; i < grid.Length; i++)
+    {
+        for (int j = 0; j < grid[0].Length; j++)
+        {
+            if (visited[i, j] == 0)
+                dfsCountPaths(grid, i, j, visited);
+            
+            count += (int)(visited[i,j] % 1000000007);
+        }
+    }
+    
+    return (int)(count % 1000000007);              
+}
+
+long dfsCountPaths(int[][] grid, int k, int l, int[,] visited)
+{
+    if (k < 0 || l < 0 || k > grid.Length || l > grid[0].Length) return 0;
+
+    if (visited[k, l] == 0)
+    {
+        long localCount = 1;
+        if (k + 1 < grid.Length && grid[k][l] < grid[k + 1][l])
+            localCount += dfsCountPaths(grid, k+1, l, visited);
+        if (k - 1 >= 0 && grid[k][l] < grid[k - 1][l])
+            localCount += dfsCountPaths(grid, k-1, l, visited);
+        if (l + 1 < grid[0].Length && grid[k][l] < grid[k][l +1])
+            localCount += dfsCountPaths(grid, k, l + 1, visited);
+        if (l - 1 >= 0 && grid[k][l] < grid[k][l - 1])
+            localCount += dfsCountPaths(grid, k, l - 1, visited);
+        visited[k, l] = (int)(localCount % 1000000007);
+    }
+    return visited[k, l];
+}
+
+string LongestCommonPrefix(string[] strs)
+{
+    var minStrings = new List<string>();
+    minStrings.Add(strs[0]);
+    for (int i = 1; i < strs.Length; i++)
+    {
+        if (strs[i].Length < minStrings[0].Length)
+        {
+            minStrings.Clear();
+            minStrings.Add(strs[i]);
+        }
+        else if (strs[i].Length == minStrings[0].Length)
+        {
+            minStrings.Add(strs[i]);
+        }
+    }
+
+    string longestCommonPrefix = string.Empty;
+    foreach (var item in minStrings)
+    {
+        for (int i = item.Length - 1; i >= 0; i--)
+        {
+            for (int j = 1; j <= item.Length - i; j++)
+            {
+                string s = item.Substring(i, j);
+                for (int k = 0; k < strs.Length; k++)
+                {
+                    if (strs[k] != item && strs[k].Contains(s) && s.Length > longestCommonPrefix.Length)
+                    {
+                        longestCommonPrefix = s;
+                    }
+                }
+            }
+        }
+    }
+
+    return string.Empty;
+}
+
+int RomanToInt(string s)
+{
+    var dic = new Dictionary<char, int>();
+    dic.Add('I', 1);
+    dic.Add('V', 5);
+    dic.Add('X', 10);
+    dic.Add('L', 50);
+    dic.Add('C', 100);
+    dic.Add('D', 500);
+    dic.Add('M', 1000);
+    int result = 0;
+    s = s.Replace("IV", "IIII").Replace("IX", "VIIII");
+    s = s.Replace("XL", "XXXX").Replace("XC", "LXXXX");
+    s = s.Replace("CD", "CCCC").Replace("CM", "DCCCC");
+    for (int i = 0; i < s.Length; i++)
+    {
+        result += dic[s[i]];
+    }
+    return result;
+}
 
 string IntToRoman(int num)
 {
@@ -606,6 +770,18 @@ List<int> NumberOfCities(List<int> T)
 }
 
 
+ListNode GenerateListNodeFromArray(int[] nodes)
+{
+    if(nodes.Length == 0) return null;
+    var result = new ListNode();
+    result.val = nodes[0];
+    if(nodes.Length > 1)
+    {
+        var subArray = nodes.ToList().GetRange(1, nodes.Length - 1).ToArray();
+        result.next = GenerateListNodeFromArray(subArray);
+    }
+    return result;
+}
 public class ListNode
 {
     public int val;
@@ -616,4 +792,3 @@ public class ListNode
         this.next = next;
     }
 }
-
