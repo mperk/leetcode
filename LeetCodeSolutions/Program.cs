@@ -15,6 +15,7 @@
 //Console.WriteLine(LargestNumber(new int[] {3, 30, 34, 5, 9}));
 //Console.WriteLine(TwoSum(new int[] { 2, 7, 11, 15 }, 9));
 
+using System.Collections.Concurrent;
 using System.Numerics;
 using System.Text;
 
@@ -33,13 +34,83 @@ using System.Text;
 //Console.WriteLine(MaxArea(new int[] { 1, 8, 6, 2, 5, 4, 8, 3, 7 }));
 //Console.WriteLine(IntToRoman(1994));
 //Console.WriteLine(RomanToInt("MCMXCIV"));
-//Console.WriteLine(LongestCommonPrefix(new string[] { "flower", "flow", "flight" }));
+Console.WriteLine(LongestCommonPrefix(new string[] { "flower", "flow", "flight" }));
 //Console.WriteLine(CountPaths(new int[][] { new int[] { 1, 1 }, new int[] { 3, 4 } }));
-
 //Console.WriteLine(SpiralMatrix(4, 5, GenerateListNodeFromArray(new int[] { 515, 942, 528, 483, 20, 159, 868, 999, 474, 320, 734, 956, 12, 124, 224, 252, 909, 732 })));
-Console.WriteLine(SpiralMatrix(3, 5, GenerateListNodeFromArray(new int[] { 3, 0, 2, 6, 8, 1, 7, 9, 4, 2, 5, 5, 0 })));
+//Console.WriteLine(SpiralMatrix(3, 5, GenerateListNodeFromArray(new int[] { 3, 0, 2, 6, 8, 1, 7, 9, 4, 2, 5, 5, 0 })));
+//Console.WriteLine(PeopleAwareOfSecret(6, 2, 4));
+//Console.WriteLine(PeopleAwareOfSecret(425, 81, 118));
 
 Console.ReadLine();
+
+int PeopleAwareOfSecret(int n, int delay, int forget)
+{
+    Dictionary<int, long> add = new();
+    Dictionary<int, long> remove = new();
+    int MOD = 1000000007;
+
+    if (forget <= delay)
+        return n >= forget ? 0 : 1;
+
+    long count = 1;
+    add[delay] = 1;
+    remove[forget] = 1;
+
+    long increase = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (add.ContainsKey(i))
+            increase += add[i] % MOD;
+
+        if (remove.ContainsKey(i))
+        {
+            increase -= remove[i] % MOD;
+            count -= remove[i] % MOD;
+        }
+
+        if (increase > 0)
+        {
+            count = count + increase;
+            add[i + delay] = increase;
+            remove[i + forget] = increase;
+
+        }
+    }
+
+    return (int)(count % MOD);
+}
+
+int PeopleAwareOfSecretA(int n, int delay, int forget)
+{
+    var x = new int[2];
+    int mod = 1000000007;
+    var dic = new ConcurrentDictionary<int, int>();
+    if (n < 0) return 0;
+    dic.TryAdd(1, 1);
+    int count = 1;
+    for (int i = 2; i <= n; i++)
+    {
+        int j = dic.Count() - 1;
+        while(j >= 0)
+        {
+            dic[dic.ElementAt(j).Key] = dic.ElementAt(j).Value + 1;
+            if (dic.ElementAt(j).Value > forget)
+            {
+                dic.TryRemove(dic.ElementAt(j).Key, out int _);
+                j--;
+                continue;
+            }
+            if (dic.ElementAt(j).Value > delay)
+            {
+                count++;
+                dic.TryAdd(count, 1);
+            }
+            j--;
+        } 
+    }
+
+    return dic.Count() % mod;
+}
 
 int[][] SpiralMatrix(int m, int n, ListNode head)
 {
@@ -141,41 +212,20 @@ long dfsCountPaths(int[][] grid, int k, int l, int[,] visited)
 
 string LongestCommonPrefix(string[] strs)
 {
-    var minStrings = new List<string>();
-    minStrings.Add(strs[0]);
-    for (int i = 1; i < strs.Length; i++)
-    {
-        if (strs[i].Length < minStrings[0].Length)
-        {
-            minStrings.Clear();
-            minStrings.Add(strs[i]);
-        }
-        else if (strs[i].Length == minStrings[0].Length)
-        {
-            minStrings.Add(strs[i]);
-        }
-    }
-
     string longestCommonPrefix = string.Empty;
-    foreach (var item in minStrings)
-    {
-        for (int i = item.Length - 1; i >= 0; i--)
-        {
-            for (int j = 1; j <= item.Length - i; j++)
-            {
-                string s = item.Substring(i, j);
-                for (int k = 0; k < strs.Length; k++)
-                {
-                    if (strs[k] != item && strs[k].Contains(s) && s.Length > longestCommonPrefix.Length)
-                    {
-                        longestCommonPrefix = s;
-                    }
-                }
-            }
-        }
-    }
 
-    return string.Empty;
+    for (int j = 1; j <= strs[0].Length; j++)
+    {
+        string s = strs[0].Substring(0, j);
+        if (strs.Count(x => x.StartsWith(s)) == strs.Count())
+        {
+            if(s.Length > longestCommonPrefix.Length)
+                longestCommonPrefix = s;
+        }
+        else { break; }
+    }
+    
+    return longestCommonPrefix;
 }
 
 int RomanToInt(string s)
