@@ -34,14 +34,135 @@ using System.Text;
 //Console.WriteLine(MaxArea(new int[] { 1, 8, 6, 2, 5, 4, 8, 3, 7 }));
 //Console.WriteLine(IntToRoman(1994));
 //Console.WriteLine(RomanToInt("MCMXCIV"));
-Console.WriteLine(LongestCommonPrefix(new string[] { "flower", "flow", "flight" }));
+//Console.WriteLine(LongestCommonPrefix(new string[] { "flower", "flow", "flight" }));
 //Console.WriteLine(CountPaths(new int[][] { new int[] { 1, 1 }, new int[] { 3, 4 } }));
 //Console.WriteLine(SpiralMatrix(4, 5, GenerateListNodeFromArray(new int[] { 515, 942, 528, 483, 20, 159, 868, 999, 474, 320, 734, 956, 12, 124, 224, 252, 909, 732 })));
 //Console.WriteLine(SpiralMatrix(3, 5, GenerateListNodeFromArray(new int[] { 3, 0, 2, 6, 8, 1, 7, 9, 4, 2, 5, 5, 0 })));
 //Console.WriteLine(PeopleAwareOfSecret(6, 2, 4));
 //Console.WriteLine(PeopleAwareOfSecret(425, 81, 118));
+//Console.WriteLine(ThreeSum(new int[] { -1, 0, 1, 2, -1, -4 }));
+//Console.WriteLine(ThreeSumClosest(new int[] { 4, 0, 5, -5, 3, 3, 0, -4, -5 }, -2));
+//Console.WriteLine(LetterCombinations("234"));
+Console.WriteLine(FourSum(new int[] { 1000000000, 1000000000, 1000000000, 1000000000 }, -294967296));
 
 Console.ReadLine();
+
+IList<IList<int>> FourSum(int[] nums, int target)
+{
+    if (nums.Length < 4) return new List<IList<int>>();
+    Array.Sort(nums);
+    var finds = new Dictionary<string, IList<int>>();
+    for (int i = 0; i < nums.Length - 3; i++)
+    {
+        for(int j = i + 1; j < nums.Length - 2; j++)
+        {
+            int left = j + 1, right = nums.Length - 1;
+            while (left < right)
+            {
+                long subSum = (long)nums[i] + (long)nums[j] + (long)nums[left] + (long)nums[right];
+                if (subSum == target)
+                {
+                    var find = new List<int>() { nums[i], nums[j], nums[left], nums[right] };
+                    string key = string.Join("", find);
+                    if (!finds.ContainsKey(key)) finds.Add(key, find);
+                    left++;
+                    right--;
+                }
+                else if (subSum < target)
+                    left++;
+                else
+                    right--;
+            }
+        }
+    }
+    return finds.Select(x=>x.Value).ToList();
+}
+
+IList<string> LetterCombinations(string digits)
+{
+    var dic = new Dictionary<char, string>
+    {
+        { '2', "abc" },{ '3', "def" },{ '4', "ghi" },{ '5', "jkl" },{ '6', "mno" },{ '7', "pqrs" },{ '8', "tuv" },{ '9', "wxyz" },
+    };
+    var result = new List<string>();
+    if (digits.Length == 0) return result;
+    dfs(0, new StringBuilder());
+    void dfs(int i, StringBuilder currentStr)
+    {
+        if (currentStr.Length == digits.Length)
+        {
+            result.Add(currentStr.ToString());
+            return;
+        }
+        foreach (var item in dic[digits[i]])
+        {
+            currentStr.Append(item.ToString());
+            dfs(i + 1, currentStr);
+            currentStr.Remove(currentStr.Length - 1, 1);
+        }
+    }
+    return result;
+}
+
+int ThreeSumClosest(int[] nums, int target)
+{
+    int minSum = nums[0] + nums[1] + nums[2];
+    if (nums.Length == 3) return minSum;
+    Array.Sort(nums);
+    int min = Math.Abs(target - minSum);
+    for (int i = 0; i < nums.Length - 2; i++)
+    {
+        int left = i + 1, right = nums.Length - 1;
+        while(left < right)
+        {
+            int tempSum = nums[left] + nums[right] + nums[i];
+            if (tempSum > target)
+                right--;
+            else
+                left++;
+
+            int tempDiff = Math.Abs(target - tempSum);
+            if (tempDiff < min) 
+            { 
+                min = tempDiff;
+                minSum = tempSum;
+            }
+        }
+    }
+
+    return minSum;
+}
+
+IList<IList<int>> ThreeSum(int[] nums)
+{
+    //var finds = new List<IList<int>>();
+    var finds = new Dictionary<string, IList<int>>();
+    Array.Sort(nums);
+    for (int i = 0; i < nums.Length - 2; i++)
+    {
+        int left = i + 1, right = nums.Length - 1;
+
+        while (left < right)
+        {
+            if (nums[i] + nums[left] + nums[right] == 0)
+            {
+                var triple = new List<int> { nums[i], nums[left], nums[right] };
+                var key = string.Join("", triple);
+                if (!finds.ContainsKey(key))
+                    finds.Add(key, triple);
+                left++;
+                right--;
+            }
+            else if (nums[i] + nums[left] + nums[right] > 0)
+                right--;
+            else
+                left++;
+        }
+
+    }
+
+    return finds.Select(x => x.Value).ToList();
+}
 
 int PeopleAwareOfSecret(int n, int delay, int forget)
 {
@@ -91,7 +212,7 @@ int PeopleAwareOfSecretA(int n, int delay, int forget)
     for (int i = 2; i <= n; i++)
     {
         int j = dic.Count() - 1;
-        while(j >= 0)
+        while (j >= 0)
         {
             dic[dic.ElementAt(j).Key] = dic.ElementAt(j).Value + 1;
             if (dic.ElementAt(j).Value > forget)
@@ -106,7 +227,7 @@ int PeopleAwareOfSecretA(int n, int delay, int forget)
                 dic.TryAdd(count, 1);
             }
             j--;
-        } 
+        }
     }
 
     return dic.Count() % mod;
@@ -127,7 +248,7 @@ int[][] SpiralMatrix(int m, int n, ListNode head)
     int rowStart = 0, rowEnd = m - 1;
     int colStart = 0, colEnd = n - 1;
 
-    while(rowStart <= rowEnd && colStart <= colEnd)
+    while (rowStart <= rowEnd && colStart <= colEnd)
     {
         for (int i = colStart; i <= colEnd; i++)
         {
@@ -147,7 +268,7 @@ int[][] SpiralMatrix(int m, int n, ListNode head)
 
         for (int i = colEnd; i >= colStart; i--)
         {
-            if(rowStart <= rowEnd)
+            if (rowStart <= rowEnd)
             {
                 if (head == null) return matrix;
                 matrix[rowEnd][i] = head.val;
@@ -158,7 +279,7 @@ int[][] SpiralMatrix(int m, int n, ListNode head)
 
         for (int i = rowEnd; i >= rowStart; i--)
         {
-            if(colStart <= colEnd)
+            if (colStart <= colEnd)
             {
                 if (head == null) return matrix;
                 matrix[i][colStart] = head.val;
@@ -167,7 +288,7 @@ int[][] SpiralMatrix(int m, int n, ListNode head)
         }
         colStart++;
     }
-   
+
     return matrix;
 }
 
@@ -182,12 +303,12 @@ int CountPaths(int[][] grid)
         {
             if (visited[i, j] == 0)
                 dfsCountPaths(grid, i, j, visited);
-            
-            count += (int)(visited[i,j] % 1000000007);
+
+            count += (int)(visited[i, j] % 1000000007);
         }
     }
-    
-    return (int)(count % 1000000007);              
+
+    return (int)(count % 1000000007);
 }
 
 long dfsCountPaths(int[][] grid, int k, int l, int[,] visited)
@@ -198,10 +319,10 @@ long dfsCountPaths(int[][] grid, int k, int l, int[,] visited)
     {
         long localCount = 1;
         if (k + 1 < grid.Length && grid[k][l] < grid[k + 1][l])
-            localCount += dfsCountPaths(grid, k+1, l, visited);
+            localCount += dfsCountPaths(grid, k + 1, l, visited);
         if (k - 1 >= 0 && grid[k][l] < grid[k - 1][l])
-            localCount += dfsCountPaths(grid, k-1, l, visited);
-        if (l + 1 < grid[0].Length && grid[k][l] < grid[k][l +1])
+            localCount += dfsCountPaths(grid, k - 1, l, visited);
+        if (l + 1 < grid[0].Length && grid[k][l] < grid[k][l + 1])
             localCount += dfsCountPaths(grid, k, l + 1, visited);
         if (l - 1 >= 0 && grid[k][l] < grid[k][l - 1])
             localCount += dfsCountPaths(grid, k, l - 1, visited);
@@ -219,12 +340,12 @@ string LongestCommonPrefix(string[] strs)
         string s = strs[0].Substring(0, j);
         if (strs.Count(x => x.StartsWith(s)) == strs.Count())
         {
-            if(s.Length > longestCommonPrefix.Length)
+            if (s.Length > longestCommonPrefix.Length)
                 longestCommonPrefix = s;
         }
         else { break; }
     }
-    
+
     return longestCommonPrefix;
 }
 
@@ -326,7 +447,7 @@ string IntToRoman(int num)
         }
         else if (num >= 1)
         {
-            if(num == 4)
+            if (num == 4)
             {
                 result += "IV";
                 num -= 4;
@@ -822,10 +943,10 @@ List<int> NumberOfCities(List<int> T)
 
 ListNode GenerateListNodeFromArray(int[] nodes)
 {
-    if(nodes.Length == 0) return null;
+    if (nodes.Length == 0) return null;
     var result = new ListNode();
     result.val = nodes[0];
-    if(nodes.Length > 1)
+    if (nodes.Length > 1)
     {
         var subArray = nodes.ToList().GetRange(1, nodes.Length - 1).ToArray();
         result.next = GenerateListNodeFromArray(subArray);
