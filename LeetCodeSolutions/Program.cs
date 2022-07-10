@@ -22,9 +22,7 @@ using System.Text;
 //AddTwoNumbers(new ListNode(2, new ListNode(4, new ListNode(3))), new ListNode(5, new ListNode(6, new ListNode(4))));
 
 //Console.WriteLine(LengthOfLongestSubstring("dvdf"));
-
 //Console.WriteLine(FindMedianSortedArrays(new int[] {  }, new int[] {  }));
-
 //Console.WriteLine(LongestPalindrome("cbbd"));
 //Console.WriteLine(Reverse(-123));
 //Console.WriteLine(MyAtoi("    +11191657170"));
@@ -43,9 +41,89 @@ using System.Text;
 //Console.WriteLine(ThreeSum(new int[] { -1, 0, 1, 2, -1, -4 }));
 //Console.WriteLine(ThreeSumClosest(new int[] { 4, 0, 5, -5, 3, 3, 0, -4, -5 }, -2));
 //Console.WriteLine(LetterCombinations("234"));
-Console.WriteLine(FourSum(new int[] { 1000000000, 1000000000, 1000000000, 1000000000 }, -294967296));
+//Console.WriteLine(FourSum(new int[] { 1000000000, 1000000000, 1000000000, 1000000000 }, -294967296));
+//RemoveNthFromEnd(new ListNode(1), 1);
+//Console.WriteLine(IsValid("([)]"));
+MergeTwoLists(new ListNode(1, new ListNode(21, new ListNode(24))), new ListNode(1, new ListNode(3, new ListNode(4))));
 
 Console.ReadLine();
+
+ListNode MergeTwoLists(ListNode list1, ListNode list2)
+{
+    var list = new List<int>();
+    void generateFlatList(ListNode l1, ListNode l2)
+    {
+        if (l1 != null) list.Add(l1.val);
+        if (l2 != null) list.Add(l2.val);
+        if (l1 == null && l2 == null) return;
+        generateFlatList(l1?.next, l2?.next);
+    }
+    generateFlatList(list1, list2);
+    if (list.Count == 0) return null;
+    list = list.OrderBy(x => x).ToList();
+    var result = new ListNode(list[0]);
+    list.RemoveAt(0);
+    void generateNodeFromFlatList(List<int> flatList, ListNode _result)
+    {
+        if(flatList.Count == 0) return;
+        _result.next = new ListNode(flatList[0]);
+        flatList.RemoveAt(0);
+        generateNodeFromFlatList(flatList, _result.next);
+    }
+    generateNodeFromFlatList(list, result);
+    return result;
+}
+
+bool IsValid(string s)
+{
+    var dic = new Dictionary<char, char> { { '}', '{' }, { ')', '(' }, { ']', '[' } };
+    var open = new HashSet<char>() { '{' , '(', '[' };
+    var q = new Stack<char>();
+    
+    for (int i = 0; i < s.Length; i++)
+    {
+        if (open.Contains(s[i]))
+            q.Push(s[i]);
+        else
+        {
+            if (q.Count == 0) return false;
+            if (q.Pop() == dic[s[i]])
+                continue;
+            else return false;
+        }
+    }
+    if (q.Count == 0) return true;
+    else return false;
+}
+
+ListNode RemoveNthFromEnd(ListNode head, int n)
+{
+    int count = 1;
+    var flatList = new List<int>();
+    void Flat(ListNode node)
+    {
+        flatList.Add(node.val);
+        if (node.next != null)
+            Flat(node.next);
+    }
+    Flat(head);
+
+    flatList.RemoveAt(flatList.Count - n);
+    if (flatList.Count == 0) return null;
+    var result = new ListNode();
+    result.val = flatList[0];
+    flatList.RemoveAt(0);
+    void Generate(ListNode node, List<int> l)
+    {
+        if (l.Count == 0) return;
+        node.next = new ListNode(l[0]);
+        l.RemoveAt(0);
+        Generate(node.next, l);
+    }
+    
+    Generate(result, flatList);
+    return result;
+}
 
 IList<IList<int>> FourSum(int[] nums, int target)
 {
