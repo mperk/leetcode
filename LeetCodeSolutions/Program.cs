@@ -44,9 +44,123 @@ using System.Text;
 //Console.WriteLine(FourSum(new int[] { 1000000000, 1000000000, 1000000000, 1000000000 }, -294967296));
 //RemoveNthFromEnd(new ListNode(1), 1);
 //Console.WriteLine(IsValid("([)]"));
-MergeTwoLists(new ListNode(1, new ListNode(21, new ListNode(24))), new ListNode(1, new ListNode(3, new ListNode(4))));
+//MergeTwoLists(new ListNode(1, new ListNode(21, new ListNode(24))), new ListNode(1, new ListNode(3, new ListNode(4))));
+//MergeKLists(new List<ListNode> { new ListNode(1, new ListNode(4, new ListNode(5))), new ListNode(1, new ListNode(3, new ListNode(4))), new ListNode(2, new ListNode(6)) }.ToArray());
+//SwapPairs(new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4)))));
+//ReverseKGroup(new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5, new ListNode(6)))))), 3);
+Console.WriteLine(StrStr("hello", "ll"));
 
 Console.ReadLine();
+
+int StrStr(string haystack, string needle)
+{
+    if (string.IsNullOrEmpty(needle)) return 0;
+    int result = haystack.IndexOf(needle);
+    return result;
+}
+
+ListNode ReverseKGroup(ListNode head, int k)
+{
+    var flat = new List<int>();
+
+    void generateFlatList(ListNode n)
+    {
+        if (n == null) return;
+        flat.Add(n.val);
+        generateFlatList(n.next);
+    }
+    generateFlatList(head);
+
+    if (flat.Count == 0) return null;
+    var reverseList = new List<int>();
+    for (int i = 0; i < flat.Count && i + k - 1 < flat.Count; i+=k)
+    {
+        var temp = flat.GetRange(i, k);
+        temp.Reverse();
+        reverseList.AddRange(temp);
+    }
+
+    for (int i = ((flat.Count / k) * k); i < flat.Count; i++)
+    {
+        reverseList.Add(flat[i]);
+    }
+    var result = new ListNode(reverseList[0]);
+    reverseList.RemoveAt(0);
+    void generateListNodeFromFlatList(List<int> l, ListNode n)
+    {
+        if (l.Count == 0) return;
+        n.next = new ListNode(l[0]);
+        l.RemoveAt(0);
+        generateListNodeFromFlatList(l, n.next);
+    }
+    generateListNodeFromFlatList(reverseList, result);
+
+    return result;
+}
+
+ListNode SwapPairs(ListNode head)
+{
+    var flat = new List<int>();
+
+    void generateFlatListFromNode(ListNode n)
+    {
+        if(n == null) return;
+        flat.Add(n.val);
+        generateFlatListFromNode(n.next);
+    }
+    generateFlatListFromNode(head);
+    if (flat.Count == 0) return null;
+    for (int i = 0; i < flat.Count - 1; i+=2)
+    {
+        int swap = flat[i];
+        flat[i] = flat[i + 1];
+        flat[i + 1] = swap;
+    }
+
+    var result = new ListNode(flat[0]);
+    flat.RemoveAt(0);
+    void generateNodeFromFlatList(List<int> l, ListNode _result)
+    {
+        if (l.Count == 0) return;
+        _result.next = new ListNode(l[0]);
+        l.RemoveAt(0);
+        generateNodeFromFlatList(l, _result.next);
+    }
+    generateNodeFromFlatList(flat, result);
+
+    return result;
+}
+
+ListNode MergeKLists(ListNode[] lists)
+{
+    var flatList = new List<int>();
+
+    foreach (var item in lists)
+    {
+        flatListFromKLists(item);
+    }
+
+    void flatListFromKLists(ListNode list)
+    {
+        if(list == null) return;
+        flatList.Add(list.val);
+        flatListFromKLists(list.next);
+    }
+    flatList.Sort();
+    if (flatList.Count == 0) return null;
+    var result = new ListNode(flatList[0]);
+    flatList.RemoveAt(0);
+    void generateResultFromFlatList(List<int> l, ListNode _result)
+    {
+        if(l.Count == 0) return;
+        _result.next = new ListNode(l[0]);
+        l.RemoveAt(0);
+        generateResultFromFlatList(l, _result.next);
+    }
+    generateResultFromFlatList(flatList, result);
+
+    return result;
+}
 
 ListNode MergeTwoLists(ListNode list1, ListNode list2)
 {
