@@ -18,6 +18,7 @@
 using System.Collections.Concurrent;
 using System.Numerics;
 using System.Text;
+using System.Text.Json;
 
 //AddTwoNumbers(new ListNode(2, new ListNode(4, new ListNode(3))), new ListNode(5, new ListNode(6, new ListNode(4))));
 
@@ -48,9 +49,133 @@ using System.Text;
 //MergeKLists(new List<ListNode> { new ListNode(1, new ListNode(4, new ListNode(5))), new ListNode(1, new ListNode(3, new ListNode(4))), new ListNode(2, new ListNode(6)) }.ToArray());
 //SwapPairs(new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4)))));
 //ReverseKGroup(new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5, new ListNode(6)))))), 3);
-Console.WriteLine(StrStr("hello", "ll"));
+//Console.WriteLine(StrStr("hello", "ll"));
+//Console.WriteLine(Divide(-2147483648, -1));
+//Console.WriteLine(solutionExceptionally("[{\"id\": \"0\", \"agent\": \"Virginia Rios\", \"unit\": \"#739\", \"description\": \"This renovated 1-bedroom is located on the fifth of a nice building in downtown.\", \"num_bedrooms\": 1}, {\"id\": \"1\", \"agent\": \"Antonio Green\", \"unit\": \"#976\", \"description\": \"small , ornate and small apartment in the heart of midtown!\", \"num_bedrooms\": 0}, {\"id\": \"2\", \"agent\": \"Evan Williams\", \"unit\": \"#25\", \"description\": \"What a good deal for this beautiful and beautiful 1-bedroom!\", \"num_bedrooms\": 1}]"));
+//Console.WriteLine(FindSubstring("barfoothefoobarman", new string[] { "foo", "bar" }));
+NextPermutation(new int[] { 0, 1, 2, 5, 3, 3, 0 });
 
 Console.ReadLine();
+
+void NextPermutation(int[] nums)
+{ //good explain: https://leetcode.com/problems/next-permutation/discuss/13994/Readable-code-without-confusing-ij-and-with-explanation
+    for (int i = nums.Length - 1; i > 0; i--)
+    {
+        if (nums[i] > nums[i - 1])
+        {
+            var rightPart = nums.ToList().GetRange(i, nums.Length - i);
+            rightPart.Sort();
+            int temp = nums[i - 1];
+            int willChangeIndex = -1;
+            for (int j = 0; j < rightPart.Count; j++)
+                if (rightPart[j] > temp)
+                {
+                    willChangeIndex = j;
+                    break;
+                }
+            Console.WriteLine(willChangeIndex);
+            nums[i - 1] = rightPart[willChangeIndex];
+            rightPart[willChangeIndex] = temp;
+            for (int j = i, k = 0; j < nums.Length; j++, k++)
+            {
+                nums[j] = rightPart[k];
+            }
+            break;
+        }
+    }
+}
+
+IList<int> FindSubstring(string s, string[] words)
+{
+    var result = new List<int>();
+    if (words.Length == 0) return result;
+
+    int n = words.Length, len = words[0].Length;
+    var expect = new Dictionary<string, int>();
+    foreach (var word in words)
+    {
+        if (expect.ContainsKey(word)) expect[word]++;
+        else expect.Add(word, 1);
+    }
+
+    var seen = new Dictionary<string, int>();
+    for (int i = 0; i < s.Length - n * len + 1; i++)
+    {
+        seen.Clear();
+        int count = 0;
+        while (count < n)
+        {
+            string curr = s.Substring(i + count * len, len);
+            if (expect.ContainsKey(curr))
+            {
+                if (seen.ContainsKey(curr)) seen[curr]++;
+                else seen.Add(curr, 1);
+
+                if (seen[curr] > expect[curr])
+                    break;
+            }
+            else
+                break;
+            count++;
+        }
+        if (count == n) result.Add(i);
+    }
+    return result;
+}
+
+int[] solutionExceptionally(string jsonData)
+{
+
+    //var bedrooms = JsonConvert.DeserializeObject<List<bedroom>>(jsonData);
+    var bedrooms = new List<bedroom>(); // deserialize kapattildigi icin new koyuldu
+    var result = new List<int>();
+    for (int i = 0; i < bedrooms.Count; i++)
+    {
+        var item = bedrooms[i];
+        if (item.description.Contains("1-bedroom") || item.description.Contains("studio"))
+        {
+            var l = item.description.Split(" ").ToList();
+            var bedroom1 = l.Where(x => x.Contains("1-bedroom")).Select((x, i) => i);
+            var yoga = l.Where(x => x == "yoga").Select((x, i) => i);
+            var dans = l.Where(x => x == "dans").Select((x, i) => i);
+            var art = l.Where(x => x == "art").Select((x, i) => i);
+            var studio = l.Where(x => x == "studio").Select((x, i) => i);
+
+            if (bedroom1.Count() > 0)
+            {
+
+                result.Add(1);
+            }
+            else
+            {
+                result.Add(0);
+            }
+
+        }
+        else
+            result.Add(item.num_bedrooms);
+    }
+
+
+    return result.ToArray();
+}
+
+int Divide(int dividend, int divisor)
+{
+    decimal quotient = (decimal)dividend / (decimal)divisor;
+    if (quotient >= 0)
+    {
+        decimal f = Math.Floor(quotient);
+        if (f > Int32.MaxValue) return Int32.MaxValue;
+        else return (int)f;
+    }
+    else
+    {
+        decimal c = Math.Ceiling(quotient);
+        if (c < Int32.MinValue) return Int32.MinValue;
+        else return (int)c;
+    }
+}
 
 int StrStr(string haystack, string needle)
 {
@@ -73,7 +198,7 @@ ListNode ReverseKGroup(ListNode head, int k)
 
     if (flat.Count == 0) return null;
     var reverseList = new List<int>();
-    for (int i = 0; i < flat.Count && i + k - 1 < flat.Count; i+=k)
+    for (int i = 0; i < flat.Count && i + k - 1 < flat.Count; i += k)
     {
         var temp = flat.GetRange(i, k);
         temp.Reverse();
@@ -104,13 +229,13 @@ ListNode SwapPairs(ListNode head)
 
     void generateFlatListFromNode(ListNode n)
     {
-        if(n == null) return;
+        if (n == null) return;
         flat.Add(n.val);
         generateFlatListFromNode(n.next);
     }
     generateFlatListFromNode(head);
     if (flat.Count == 0) return null;
-    for (int i = 0; i < flat.Count - 1; i+=2)
+    for (int i = 0; i < flat.Count - 1; i += 2)
     {
         int swap = flat[i];
         flat[i] = flat[i + 1];
@@ -142,7 +267,7 @@ ListNode MergeKLists(ListNode[] lists)
 
     void flatListFromKLists(ListNode list)
     {
-        if(list == null) return;
+        if (list == null) return;
         flatList.Add(list.val);
         flatListFromKLists(list.next);
     }
@@ -152,7 +277,7 @@ ListNode MergeKLists(ListNode[] lists)
     flatList.RemoveAt(0);
     void generateResultFromFlatList(List<int> l, ListNode _result)
     {
-        if(l.Count == 0) return;
+        if (l.Count == 0) return;
         _result.next = new ListNode(l[0]);
         l.RemoveAt(0);
         generateResultFromFlatList(l, _result.next);
@@ -179,7 +304,7 @@ ListNode MergeTwoLists(ListNode list1, ListNode list2)
     list.RemoveAt(0);
     void generateNodeFromFlatList(List<int> flatList, ListNode _result)
     {
-        if(flatList.Count == 0) return;
+        if (flatList.Count == 0) return;
         _result.next = new ListNode(flatList[0]);
         flatList.RemoveAt(0);
         generateNodeFromFlatList(flatList, _result.next);
@@ -191,9 +316,9 @@ ListNode MergeTwoLists(ListNode list1, ListNode list2)
 bool IsValid(string s)
 {
     var dic = new Dictionary<char, char> { { '}', '{' }, { ')', '(' }, { ']', '[' } };
-    var open = new HashSet<char>() { '{' , '(', '[' };
+    var open = new HashSet<char>() { '{', '(', '[' };
     var q = new Stack<char>();
-    
+
     for (int i = 0; i < s.Length; i++)
     {
         if (open.Contains(s[i]))
@@ -234,7 +359,7 @@ ListNode RemoveNthFromEnd(ListNode head, int n)
         l.RemoveAt(0);
         Generate(node.next, l);
     }
-    
+
     Generate(result, flatList);
     return result;
 }
@@ -246,7 +371,7 @@ IList<IList<int>> FourSum(int[] nums, int target)
     var finds = new Dictionary<string, IList<int>>();
     for (int i = 0; i < nums.Length - 3; i++)
     {
-        for(int j = i + 1; j < nums.Length - 2; j++)
+        for (int j = i + 1; j < nums.Length - 2; j++)
         {
             int left = j + 1, right = nums.Length - 1;
             while (left < right)
@@ -267,7 +392,7 @@ IList<IList<int>> FourSum(int[] nums, int target)
             }
         }
     }
-    return finds.Select(x=>x.Value).ToList();
+    return finds.Select(x => x.Value).ToList();
 }
 
 IList<string> LetterCombinations(string digits)
@@ -305,7 +430,7 @@ int ThreeSumClosest(int[] nums, int target)
     for (int i = 0; i < nums.Length - 2; i++)
     {
         int left = i + 1, right = nums.Length - 1;
-        while(left < right)
+        while (left < right)
         {
             int tempSum = nums[left] + nums[right] + nums[i];
             if (tempSum > target)
@@ -314,8 +439,8 @@ int ThreeSumClosest(int[] nums, int target)
                 left++;
 
             int tempDiff = Math.Abs(target - tempSum);
-            if (tempDiff < min) 
-            { 
+            if (tempDiff < min)
+            {
                 min = tempDiff;
                 minSum = tempSum;
             }
@@ -1154,4 +1279,12 @@ public class ListNode
         this.val = val;
         this.next = next;
     }
+}
+class bedroom
+{
+    public string id { get; set; }
+    public string description { get; set; }
+    public string unit { get; set; }
+    public string agent { get; set; }
+    public int num_bedrooms { get; set; }
 }
