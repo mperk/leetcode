@@ -53,12 +53,66 @@ using System.Text.Json;
 //Console.WriteLine(Divide(-2147483648, -1));
 //Console.WriteLine(solutionExceptionally("[{\"id\": \"0\", \"agent\": \"Virginia Rios\", \"unit\": \"#739\", \"description\": \"This renovated 1-bedroom is located on the fifth of a nice building in downtown.\", \"num_bedrooms\": 1}, {\"id\": \"1\", \"agent\": \"Antonio Green\", \"unit\": \"#976\", \"description\": \"small , ornate and small apartment in the heart of midtown!\", \"num_bedrooms\": 0}, {\"id\": \"2\", \"agent\": \"Evan Williams\", \"unit\": \"#25\", \"description\": \"What a good deal for this beautiful and beautiful 1-bedroom!\", \"num_bedrooms\": 1}]"));
 //Console.WriteLine(FindSubstring("barfoothefoobarman", new string[] { "foo", "bar" }));
-NextPermutation(new int[] { 0, 1, 2, 5, 3, 3, 0 });
+//NextPermutation(new int[] { 0, 1, 2, 5, 3, 3, 0 });
+//LongestValidParentheses("()())((()))");
+//Search(new int[] { 4, 5, 6, 7, 0, 1, 2 }, 11);
+SearchInsert(new int[] { 3, 5, 6 }, 2);
 
 Console.ReadLine();
 
+int SearchInsert(int[] nums, int target)
+{
+    if (nums[nums.Length - 1] < target) return nums.Length;
+    for (int i = 0; i < nums.Length; i++)
+    {
+       if (nums[i] >= target) return i;
+    }
+    return -1;
+}
+
+int[] SearchRange(int[] nums, int target)
+{
+    var result = nums.Select((x, i) => x == target ? i : -1).Where( x => x != -1);
+    if (result.Count() == 1) return new[] { result.First(), result.First() };
+    if (result.Any()) return new[] { result.First(), result.Last() };
+    else return new int[] { -1, -1 };
+}
+
+int Search(int[] nums, int target)
+{
+    return nums.ToList().IndexOf(target);
+
+    //var result = -1;
+    //for (int i = 0; i < nums.Length; i++)
+    //{
+    //    if (target == nums[i]) result = i;
+    //}
+    //return result;
+}
+
+int LongestValidParentheses(string s)
+{
+    int ans = 0;
+    var st = new Stack<int>();
+    st.Push(-1);
+    for (int i = 0; i < s.Length; i++)
+    {
+        if (s[i] == '(')
+            st.Push(i);
+        else if (s[i] == ')')
+        {
+            st.Pop();
+            if (st.Count == 0)
+                st.Push(i);
+            ans = Math.Max(ans, i - st.Peek());
+        }
+    }
+    return ans;
+}
+
 void NextPermutation(int[] nums)
 { //good explain: https://leetcode.com/problems/next-permutation/discuss/13994/Readable-code-without-confusing-ij-and-with-explanation
+    bool isChanged = false;
     for (int i = nums.Length - 1; i > 0; i--)
     {
         if (nums[i] > nums[i - 1])
@@ -80,9 +134,11 @@ void NextPermutation(int[] nums)
             {
                 nums[j] = rightPart[k];
             }
+            isChanged = true;
             break;
         }
     }
+    if (!isChanged) Array.Sort(nums);
 }
 
 IList<int> FindSubstring(string s, string[] words)
