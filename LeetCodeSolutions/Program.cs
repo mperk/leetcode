@@ -56,9 +56,157 @@ using System.Text.Json;
 //NextPermutation(new int[] { 0, 1, 2, 5, 3, 3, 0 });
 //LongestValidParentheses("()())((()))");
 //Search(new int[] { 4, 5, 6, 7, 0, 1, 2 }, 11);
-SearchInsert(new int[] { 3, 5, 6 }, 2);
+//SearchInsert(new int[] { 3, 5, 6 }, 2);
+//Console.WriteLine(IsValidSudoku(new char[][] {
+// new char[] {'5','3','.','.','7','.','.','.','.'}
+//,new char[] {'6','.','.','1','9','5','.','.','.'}
+//,new char[] {'.','9','8','.','.','.','.','6','.'}
+//,new char[] {'8','.','.','.','6','.','.','.','3'}
+//,new char[] {'4','.','.','8','.','3','.','.','1'}
+//,new char[] {'7','.','.','.','2','.','.','.','6'}
+//,new char[] {'.','6','.','.','.','.','2','8','.'}
+//,new char[] {'.','.','.','4','1','9','.','.','5'}
+//,new char[] {'.','.','.','.','8','.','.','7','9'}  }));
+
+SolveSudoku(new char[][] {
+ new char[] {'5','3','.','.','7','.','.','.','.'}
+,new char[] {'6','.','.','1','9','5','.','.','.'}
+,new char[] {'.','9','8','.','.','.','.','6','.'}
+,new char[] {'8','.','.','.','6','.','.','.','3'}
+,new char[] {'4','.','.','8','.','3','.','.','1'}
+,new char[] {'7','.','.','.','2','.','.','.','6'}
+,new char[] {'.','6','.','.','.','.','2','8','.'}
+,new char[] {'.','.','.','4','1','9','.','.','5'}
+,new char[] {'.','.','.','.','8','.','.','7','9'}
+});
 
 Console.ReadLine();
+
+void SolveSudoku(char[][] board)
+{
+    var addedCoordinates = new Stack<(int, int)>();
+    var addedValues = new Stack<char>();
+    int start = 1;
+    for (int i = 0; i < board.Length; i++)
+    {
+        start = 1;
+        for (int j = 0; j < board[0].Length; j++)
+        {
+            if (board[i][j] != '.') continue;
+
+            char candidate = GetNewValueToSudoku(i, j, board, start);
+            if (candidate == '.')
+            {
+                var lastCoordinate = addedCoordinates.Pop();
+                var lastAddedValue = addedValues.Pop();
+                start = Int32.Parse(lastAddedValue.ToString());
+                start++;
+                i = lastCoordinate.Item1;
+                j = lastCoordinate.Item2;
+                board[i][j] = '.';
+                j--;
+            }
+            else
+            {
+                addedCoordinates.Push((i, j));
+                addedValues.Push(candidate);
+                board[i][j] = candidate;
+                start = 1;
+            }
+        }
+    }
+}
+
+char GetNewValueToSudoku(int x, int y, char[][] board, int start)
+{
+    if (start > 9) return '.';
+    var column = new HashSet<char>();
+    for (int i = 0; i < 9; i++)
+    {
+        if (!column.Contains(board[i][y]) && board[i][y] != '.') column.Add(board[i][y]);
+    }
+
+    var row = new HashSet<char>();
+    for (int i = 0; i < 9; i++)
+    {
+        if (!row.Contains(board[x][i]) && board[x][i] != '.') row.Add(board[x][i]);
+    }
+
+    var TripleCube = new HashSet<char>();
+    int startX = (x / 3) * 3;
+    int startY = (y / 3) * 3;
+    for (int i = startX; i < startX + 3; i++)
+    {
+        for (int j = startY; j < startY + 3; j++)
+        {
+            if (!TripleCube.Contains(board[i][j]) && board[i][j] != '.') TripleCube.Add(board[i][j]);
+        }
+    }
+
+    for (int k = start + 48; k <= 57; k++)
+    {
+        char candidate = Convert.ToChar(k);
+        if (!TripleCube.Contains(candidate) && !row.Contains(candidate) && !column.Contains(candidate))
+            return candidate;
+    }
+    return '.';
+}
+
+bool IsValidSudoku(char[][] board)
+{
+    //check line by line
+    var hashSet = new HashSet<char>();
+    for (int i = 0; i < board.Length; i++)
+    {
+        hashSet.Clear();
+        for (int j = 0; j < board[0].Length; j++)
+        {
+            if (board[i][j] == '.') continue;
+            if (hashSet.Contains(board[i][j])) return false;
+            else hashSet.Add(board[i][j]);
+        }
+    }
+    hashSet.Clear();
+
+    //check column by column
+    for (int i = 0; i < board.Length; i++)
+    {
+        hashSet.Clear();
+        for (int j = 0; j < board[0].Length; j++)
+        {
+            if (board[j][i] == '.') continue;
+            if (hashSet.Contains(board[j][i])) return false;
+            else hashSet.Add(board[j][i]);
+        }
+    }
+    hashSet.Clear();
+
+    // check 3x3
+    bool CheckThreeXThree(int x, int y, char[][] board)
+    {
+        var hashSet = new HashSet<int>();
+        for (int i = x; i < x + 3; i++)
+        {
+            for (int j = y; j < y + 3; j++)
+            {
+                if (board[i][j] == '.') continue;
+                if (hashSet.Contains(board[i][j])) return false;
+                else hashSet.Add(board[i][j]);
+            }
+        }
+        if (x == 6 && y == 6) return true;
+        if (x == 6) 
+        {
+            x = 0;
+            return CheckThreeXThree(x, y + 3, board);
+        }
+        else
+            return CheckThreeXThree(x + 3, y, board);
+    }
+
+    var isValid3x3 = CheckThreeXThree(0, 0, board);
+    return isValid3x3;
+}
 
 int SearchInsert(int[] nums, int target)
 {
