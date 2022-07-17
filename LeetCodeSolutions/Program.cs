@@ -67,20 +67,127 @@ using System.Text.Json;
 //,new char[] {'.','6','.','.','.','.','2','8','.'}
 //,new char[] {'.','.','.','4','1','9','.','.','5'}
 //,new char[] {'.','.','.','.','8','.','.','7','9'}  }));
-
-SolveSudoku(new char[][] {
- new char[] {'5','3','.','.','7','.','.','.','.'}
-,new char[] {'6','.','.','1','9','5','.','.','.'}
-,new char[] {'.','9','8','.','.','.','.','6','.'}
-,new char[] {'8','.','.','.','6','.','.','.','3'}
-,new char[] {'4','.','.','8','.','3','.','.','1'}
-,new char[] {'7','.','.','.','2','.','.','.','6'}
-,new char[] {'.','6','.','.','.','.','2','8','.'}
-,new char[] {'.','.','.','4','1','9','.','.','5'}
-,new char[] {'.','.','.','.','8','.','.','7','9'}
-});
-
+//SolveSudoku(new char[][] {
+// new char[] {'5','3','.','.','7','.','.','.','.'}
+//,new char[] {'6','.','.','1','9','5','.','.','.'}
+//,new char[] {'.','9','8','.','.','.','.','6','.'}
+//,new char[] {'8','.','.','.','6','.','.','.','3'}
+//,new char[] {'4','.','.','8','.','3','.','.','1'}
+//,new char[] {'7','.','.','.','2','.','.','.','6'}
+//,new char[] {'.','6','.','.','.','.','2','8','.'}
+//,new char[] {'.','.','.','4','1','9','.','.','5'}
+//,new char[] {'.','.','.','.','8','.','.','7','9'}
+//});
+//CombinationSum(new int[] { 2, 3, 6, 7 }, 7);
+//CombinationSum2(new int[] { 10, 1, 2, 7, 6, 1, 5 }, 8);
+//Console.WriteLine(FirstMissingPositive(new int[] { -1, -2, -3 }));
+Console.WriteLine(Trap(new int[] { 0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1 }));
 Console.ReadLine();
+
+int Trap(int[] height)
+{
+    int result = 0;
+    int leftMax = Int32.MinValue;
+    int rightMax = Int32.MinValue;
+
+    for (int left = 0, right = height.Length - 1; left <= right;)
+    {
+        leftMax = Math.Max(leftMax, height[left]);
+        rightMax = Math.Max(rightMax, height[right]);
+        if (leftMax < rightMax)
+        {
+            result += leftMax - height[left];
+            left++;
+        }
+        else
+        {
+            result += rightMax - height[right];
+            right--;
+        }
+    }
+    return result;
+}
+
+int FirstMissingPositive(int[] nums)
+{
+    Array.Sort(nums);
+    int lastJ = 0;
+    int result = nums.Length;
+    for (int i = 1; i <= nums.Length; i++)
+    {
+        for (int j = lastJ; j < nums.Length; j++)
+        {
+            if (nums[j] == i)
+            {
+                lastJ = j + 1;
+                result = i + 1;
+                break;
+            }
+            else if (nums[j] < i)
+            {
+                result = i;
+                lastJ = j + 1;
+                continue;
+            }
+            else if (nums[j] > i) return i;
+        }
+    }
+    return result;
+}
+
+IList<IList<int>> CombinationSum2(int[] candidates, int target)
+{
+    Array.Sort(candidates);
+    var result = new List<IList<int>>();
+
+    void backtrack(List<int> cur, int i)
+    {
+        int sum = cur.Sum();
+        if (sum == target)
+        {
+            result.Add(new List<int>(cur));
+            return;
+        }
+        else if (sum > target || i >= candidates.Length)
+            return;
+
+        int prev = -1;
+        for (int j = i; j < candidates.Length; j++)
+        {
+            if (candidates[j] == prev) continue;
+            cur.Add(candidates[j]);
+            backtrack(cur, j + 1);
+            cur.RemoveAt(cur.Count - 1);
+            prev = candidates[j];
+        }
+    }
+    backtrack(new List<int>(), 0);
+    return result;
+}
+
+IList<IList<int>> CombinationSum(int[] candidates, int target)
+{
+    var result = new List<IList<int>>();
+    dfs(0, new List<int>());
+    void dfs(int i, List<int> cur)
+    {
+        int sum = cur.Sum();
+        if (sum == target)
+        {
+            result.Add(new List<int>(cur));
+            return;
+        }
+        else if (sum > target || i >= candidates.Length)
+            return;
+
+        cur.Add(candidates[i]);
+        dfs(i, cur);
+        cur.RemoveAt(cur.Count - 1);
+        dfs(i + 1, cur);
+    }
+
+    return result;
+}
 
 void SolveSudoku(char[][] board)
 {
@@ -195,7 +302,7 @@ bool IsValidSudoku(char[][] board)
             }
         }
         if (x == 6 && y == 6) return true;
-        if (x == 6) 
+        if (x == 6)
         {
             x = 0;
             return CheckThreeXThree(x, y + 3, board);
@@ -213,14 +320,14 @@ int SearchInsert(int[] nums, int target)
     if (nums[nums.Length - 1] < target) return nums.Length;
     for (int i = 0; i < nums.Length; i++)
     {
-       if (nums[i] >= target) return i;
+        if (nums[i] >= target) return i;
     }
     return -1;
 }
 
 int[] SearchRange(int[] nums, int target)
 {
-    var result = nums.Select((x, i) => x == target ? i : -1).Where( x => x != -1);
+    var result = nums.Select((x, i) => x == target ? i : -1).Where(x => x != -1);
     if (result.Count() == 1) return new[] { result.First(), result.First() };
     if (result.Any()) return new[] { result.First(), result.Last() };
     else return new int[] { -1, -1 };
