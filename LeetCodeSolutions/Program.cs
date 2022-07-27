@@ -82,8 +82,38 @@ using System.Text.Json;
 //CombinationSum2(new int[] { 10, 1, 2, 7, 6, 1, 5 }, 8);
 //Console.WriteLine(FirstMissingPositive(new int[] { -1, -2, -3 }));
 //Console.WriteLine(Trap(new int[] { 0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1 }));
-Console.WriteLine(Multiply("123", "456"));
+//Console.WriteLine(Multiply("123", "456"));
+Console.WriteLine(WildcardMatching("abcabczzzde", "*abc???de*"));
 Console.ReadLine();
+
+bool WildcardMatching(string s, string p)
+{
+    int i = 0, j = 0;
+    int lastMatch_i = -1, star_j = -1;
+
+    while(i < s.Length)
+    {
+        if (j < p.Length && (s[i] == p[j] || p[j] == '?'))
+        {
+            i++; j++;
+        }
+        else if (j < p.Length && p[j] == '*')
+        {
+            star_j = j;
+            j++;
+            lastMatch_i = i;
+        }
+        else if (star_j != -1)
+        {
+            j = star_j + 1;
+            lastMatch_i++;
+            i = lastMatch_i;
+        }
+        else return false;
+    }
+    while (j < p.Length && p[j] == '*') j++;
+    return j == p.Length;
+}
 
 string Multiply(string num1, string num2)
 {
