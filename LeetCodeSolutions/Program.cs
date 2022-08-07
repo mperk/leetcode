@@ -83,8 +83,94 @@ using System.Text.Json;
 //Console.WriteLine(FirstMissingPositive(new int[] { -1, -2, -3 }));
 //Console.WriteLine(Trap(new int[] { 0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1 }));
 //Console.WriteLine(Multiply("123", "456"));
-Console.WriteLine(WildcardMatching("abcabczzzde", "*abc???de*"));
+//Console.WriteLine(WildcardMatching("abcabczzzde", "*abc???de*"));
+//Console.WriteLine(JumpGame2(new int[] { 5,9,3,2,1,0,2,3,3,1,0,0 }));
+//Console.WriteLine(Permute(new int[] { 1,2,3 }));
+Console.WriteLine(PermuteUnique(new int[] { 1,1,2 }));
 Console.ReadLine();
+
+IList<IList<int>> PermuteUnique(int[] nums)
+{
+    var result = new List<IList<int>>();
+    var added = new HashSet<string>();
+    backtrack(new List<(int, int)>());
+    void backtrack(List<(int,int)> candidate)
+    {
+        if (candidate.Count == nums.Length)
+        {
+            string key = string.Join(",", candidate.Select(x => x.Item2));
+            if (!added.Contains(key))
+            {
+                result.Add(new List<int>(candidate.Select(x => x.Item2)));
+                added.Add(key);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (candidate.Any(x => x.Item1 == i)) continue;
+                else
+                {
+                    candidate.Add((i, nums[i]));
+                    backtrack(candidate);
+                    candidate.RemoveAt(candidate.Count - 1);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+IList<IList<int>> Permute(int[] nums)
+{
+    var result = new List<IList<int>>();
+    backtrack(new List<int>());
+    void backtrack(List<int> candidate)
+    {
+        if (candidate.Count() == nums.Length)
+            result.Add(new List<int>(candidate));
+        else
+        {
+            for (int i = 0; i < nums.Length; i++)
+            {
+                if (candidate.Contains(nums[i])) continue;
+                candidate.Add(nums[i]);
+                backtrack(candidate);
+                candidate.RemoveAt(candidate.Count() - 1);
+            }
+        }
+    }
+    return result;
+}
+
+//TODO
+int JumpGame2(int[] nums)
+{
+    if (nums.Length == 0 || nums[0] == 0) return 0;
+    int current = nums[0];
+    int result = 1;
+    next(0, nums[0]);
+    void next(int current, int step)
+    {
+        if (current + step >= nums.Length - 1) return;
+        int max = -1;
+        int maxIndex = 0;
+        for (int i = current + 1; i < current + step; i++)
+        {
+            if (nums[i] > max)
+            {
+                max = nums[i];
+                maxIndex = i;
+            }
+        }
+        
+        result++;
+        next(maxIndex, nums[maxIndex]);
+    }
+    return result;
+}
 
 bool WildcardMatching(string s, string p)
 {
