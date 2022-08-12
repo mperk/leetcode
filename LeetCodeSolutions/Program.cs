@@ -86,8 +86,30 @@ using System.Text.Json;
 //Console.WriteLine(WildcardMatching("abcabczzzde", "*abc???de*"));
 //Console.WriteLine(JumpGame2(new int[] { 5,9,3,2,1,0,2,3,3,1,0,0 }));
 //Console.WriteLine(Permute(new int[] { 1,2,3 }));
-Console.WriteLine(PermuteUnique(new int[] { 1,1,2 }));
+//Console.WriteLine(PermuteUnique(new int[] { 1,1,2 }));
+Rotate(new int[][] { new int[] { 1, 2, 3 }, new int[] { 4, 5, 6 }, new int[] { 7, 8, 9 }, });
 Console.ReadLine();
+
+void Rotate(int[][] matrix)
+{
+    var matrix2 = new int[matrix.Length, matrix.Length];
+    int last = matrix.Length - 1;
+    for (int i = 0; i < matrix.Length; i++)
+    {
+        for (int j = 0; j < matrix[0].Length; j++)
+        {
+           matrix2[j,last] = matrix[i][j];
+        }
+        last--;
+    }
+    for (int i = 0; i < matrix.Length; i++)
+    {
+        for (int j = 0; j < matrix.Length; j++)
+        {
+            matrix[i][j] = matrix2[i, j];
+        }
+    }
+}
 
 IList<IList<int>> PermuteUnique(int[] nums)
 {
