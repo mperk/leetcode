@@ -19,6 +19,7 @@ using System.Collections.Concurrent;
 using System.Numerics;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 //AddTwoNumbers(new ListNode(2, new ListNode(4, new ListNode(3))), new ListNode(5, new ListNode(6, new ListNode(4))));
 
@@ -83,12 +84,267 @@ using System.Text.Json;
 //Console.WriteLine(FirstMissingPositive(new int[] { -1, -2, -3 }));
 //Console.WriteLine(Trap(new int[] { 0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1 }));
 //Console.WriteLine(Multiply("123", "456"));
-//Console.WriteLine(WildcardMatching("abcabczzzde", "*abc???de*"));
+// Console.WriteLine(WildcardMatching("abcabczzzde", "*abc???de*"));
 //Console.WriteLine(JumpGame2(new int[] { 5,9,3,2,1,0,2,3,3,1,0,0 }));
 //Console.WriteLine(Permute(new int[] { 1,2,3 }));
-//Console.WriteLine(PermuteUnique(new int[] { 1,1,2 }));
-Rotate(new int[][] { new int[] { 1, 2, 3 }, new int[] { 4, 5, 6 }, new int[] { 7, 8, 9 }, });
+// Console.WriteLine(PermuteUnique(new int[] { 1,1,2 }));
+// Rotate(new int[][] { new int[] { 1, 2, 3 }, new int[] { 4, 5, 6 }, new int[] { 7, 8, 9 }, });
+// Console.WriteLine(solution(new int[] { 1, 3, 6, 4, 1, 2 }));
+// Console.WriteLine(GetTaskIndexAtCycle_first(new int[] { 3, 4, 3, 2, 5 }, 10));
+// Console.WriteLine(GetTaskIndexAtCycle(new int[] { 3, 4, 3, 2, 5 }, new int[] { -1, -1, -1, 2, -1 }, 8));
+// Console.WriteLine(Validate(new string[] { "--name", "SOME_NAME", "--count", "10" }));
+// Console.WriteLine("Mehmet");
+// Analyze("1 2222 3");
+// Console.WriteLine(GroupAnagrams(new[] { "eat", "tea", "tan", "ate", "nat", "bat" }));
+
+Console.WriteLine(MaxSubArray(new[] { -2, 1, -3, 4, -1, 2, 1, -5, 4 }));
 Console.ReadLine();
+
+int MaxSubArray(int[] nums)
+{
+    int maxSub = nums[0];
+    int curSum = 0;
+    foreach (var n in nums)
+    {
+        if(curSum < 0)
+            curSum = 0;
+        curSum += n;
+        maxSub = Math.Max(maxSub, curSum);
+    }
+    return maxSub;
+}
+
+double MyPow(double x, int n)
+{
+    if (n == 0) return (double)1.00000;
+    if (x == 1.00000) return (double)1.00000;
+
+    int half = n >> 1;
+    double result = x;
+    int i = 1;
+    while (i < Math.Abs(half))
+    {
+        result = result * x;
+        i++;
+    }
+
+    if (n % 2 == 0)
+        result = result * result;
+    else
+        result = result * result * x;
+
+    if (n < 0)
+    {
+        result = 1 / result;
+    }
+
+    return result;
+}
+
+
+IList<IList<string>> GroupAnagrams(string[] strs)
+{
+    var dic = new Dictionary<string, IList<string>>();
+    foreach (var str in strs)
+    {
+        var ordered = string.Join(string.Empty, str.OrderBy(x => x));
+        if (dic.ContainsKey(ordered))
+        {
+            dic[ordered].Add(str);
+        }
+        else
+        {
+            dic[ordered] = new List<string> { str };
+        }
+    }
+    return dic.Select(x => x.Value).ToList();
+}
+
+
+Stats Analyze(string document)
+{
+    var result = new Stats();
+    if (document is null) throw new ArgumentNullException();
+    if (string.IsNullOrEmpty(document)) return result;
+
+    var splitedDoc = document.Split(" ");
+    result.NumberOfAllWords = splitedDoc.Count();
+    result.NumberOfWordsThatContainOnlyDigits = splitedDoc.Where(x => x.All(Char.IsDigit)).Count();
+    result.NumberOfWordsStartingWithSmallLetter = splitedDoc.Where(x => Char.IsLower(x.FirstOrDefault())).Count();
+    result.NumberOfWordsStartingWithCapitalLetter = splitedDoc.Where(x => Char.IsUpper(x.FirstOrDefault())).Count();
+    var orderedDoc = splitedDoc.OrderBy(x => x.Length).Select(v => new { v, v.Length });
+    result.TheLongestWord = orderedDoc.Where(x => orderedDoc.LastOrDefault().Length == x.Length).First().v;
+    result.TheShortestWord = orderedDoc.FirstOrDefault().v;
+    return result;
+}
+
+public class Stats
+{
+    // Total number of all words in the document
+    public int NumberOfAllWords { get; set; }
+
+    // Returns number of words that consist only from digits e.g. 13455, 98374
+    public int NumberOfWordsThatContainOnlyDigits { get; set; }
+
+    // Returns number of words that start with a lower letter e.g. a, d, z
+    public int NumberOfWordsStartingWithSmallLetter { get; set; }
+
+    // Returns number of words that start with a capital letter e.g. A, D, Z
+    public int NumberOfWordsStartingWithCapitalLetter { get; set; }
+
+    // Returns the first longest word in the document
+    public string TheLongestWord { get; set; }
+
+    // Returns the first shortest word in the document
+    public string TheShortestWord { get; set; }
+}
+
+
+/*
+
+
+int Validate(string[] args)
+{
+    if (args.Count() == 0) return -1;
+
+    string[] acceptedParams = new string[] { "--name", "--count", "--help" };
+    var dic = new Dictionary<string, List<string>>()
+    {
+        {"--name", new List<string>()},
+        {"--count", new List<string>()},
+        {"--help", new List<string>()},
+    };
+    bool invalidKey = false;
+    bool invalidParam = false;
+    for (int i = 0; i < args.Length; i += 2)
+    {
+        if (dic.ContainsKey(args[i].ToLower()))
+        {
+            if (args[i].ToLower() == "--help")
+                dic[args[i].ToLower()].Add("help");
+            else if (args[i].ToLower() == "--count")
+            {
+                if (args.Length > i + 1)
+                {
+                    dic[args[i].ToLower()].Add(args[i + 1]);
+                    if (Int32.TryParse(args[i + 1], out int c))
+                    {
+                        if (c >= 10 && c <= 100) continue;
+                        else invalidKey = true;
+                    }
+                    else
+                    {
+                        invalidKey = true;
+                        invalidParam = true;
+                    }
+                }
+                else
+                    invalidKey = true;
+
+            }
+            else if (args[i].ToLower() == "--name")
+            {
+                if (args.Length > i + 1)
+                {
+                    dic[args[i].ToLower()].Add(args[i + 1]);
+                    int c = args[i + 1].Length;
+                    if (c >= 3 && c <= 10) continue;
+                    else
+                    {
+                        invalidKey = true;
+                        // invalidParam = true;
+                    }
+                }
+                else
+                    invalidKey = true;
+            }
+
+        }
+        else
+        {
+            invalidKey = true;
+        }
+    }
+
+    if (dic["--help"].Count() > 0 && invalidParam == false) return 1;
+
+    if (invalidKey) return -1;
+    return 0;
+}
+
+
+int GetTaskIndexAtCycle(int[] jobs, int[] dependencies, int cycle)
+{
+    var x = new HashSet<(int, int)>();
+    var executed = new HashSet<int>();
+    var ordered = jobs.Select((val, index) => new { val, index }).OrderBy(x => x.val);
+    int sum = 0;
+    foreach (var item in ordered)
+    {
+        int d = dependencies.ElementAt(item.index);
+        if (d != -1)
+        {
+            x.Add((item.index, item.val));
+            continue;
+        }
+
+        sum += item.val;
+        if (cycle <= sum)
+        {
+            return item.index;
+        }
+        executed.Add(item.index);
+        if (x.Any())
+        {
+            var first = x.First();
+
+            if (executed.Contains(dependencies[first.Item1]))
+            {
+                executed.Add(first.Item1);
+                sum += first.Item2;
+                if (cycle <= sum)
+                {
+                    return first.Item1;
+                }
+                x.Remove(first);
+            }
+
+        }
+    }
+    return 0;
+}
+
+int GetTaskIndexAtCycle_first(int[] jobs, int cycle)
+{
+    var ordered = jobs.Select((val, index) => new { val, index }).OrderBy(x => x.val);
+    int sum = 0;
+    foreach (var item in ordered)
+    {
+        sum += item.val;
+        if (cycle <= sum)
+        {
+            return item.index;
+        }
+    }
+
+    return 0;
+}
+
+int solution(int[] A)
+{
+    int result = 1;
+    var ordered = A.Distinct().OrderBy(x => x);
+
+    foreach (var item in ordered)
+    {
+        if (item > result) break;
+        else
+        {
+            result++;
+        }
+    }
+    return result;
+}
 
 void Rotate(int[][] matrix)
 {
@@ -98,7 +354,7 @@ void Rotate(int[][] matrix)
     {
         for (int j = 0; j < matrix[0].Length; j++)
         {
-           matrix2[j,last] = matrix[i][j];
+            matrix2[j, last] = matrix[i][j];
         }
         last--;
     }
@@ -116,7 +372,7 @@ IList<IList<int>> PermuteUnique(int[] nums)
     var result = new List<IList<int>>();
     var added = new HashSet<string>();
     backtrack(new List<(int, int)>());
-    void backtrack(List<(int,int)> candidate)
+    void backtrack(List<(int, int)> candidate)
     {
         if (candidate.Count == nums.Length)
         {
@@ -187,7 +443,7 @@ int JumpGame2(int[] nums)
                 maxIndex = i;
             }
         }
-        
+
         result++;
         next(maxIndex, nums[maxIndex]);
     }
@@ -199,7 +455,7 @@ bool WildcardMatching(string s, string p)
     int i = 0, j = 0;
     int lastMatch_i = -1, star_j = -1;
 
-    while(i < s.Length)
+    while (i < s.Length)
     {
         if (j < p.Length && (s[i] == p[j] || p[j] == '?'))
         {
@@ -1760,3 +2016,5 @@ class bedroom
     public string agent { get; set; }
     public int num_bedrooms { get; set; }
 }
+
+*/
